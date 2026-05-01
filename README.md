@@ -28,6 +28,69 @@ npm run db:init
 
 Esse comando cria/prepara o banco SQLite do backend e cadastra os usuários de teste.
 
+### Como ver o que está salvo no banco
+
+O banco usado localmente é SQLite e fica neste arquivo:
+
+```txt
+backend/prisma/dev.db
+```
+
+Para abrir o banco pelo terminal:
+
+```bash
+sqlite3 backend/prisma/dev.db
+```
+
+Dentro do prompt `sqlite>`, liste as tabelas:
+
+```sql
+.tables
+```
+
+Para deixar a saída mais legível:
+
+```sql
+.headers on
+.mode column
+```
+
+Consultar usuários:
+
+```sql
+SELECT id, nome, email, perfil FROM User;
+```
+
+Consultar categorias:
+
+```sql
+SELECT id, nome, ativo FROM Category;
+```
+
+Consultar solicitações:
+
+```sql
+SELECT id, descricao, valor, status, solicitanteId, categoriaId FROM Reimbursement;
+```
+
+Consultar histórico:
+
+```sql
+SELECT id, acao, observacao, solicitacaoId, usuarioId, criadoEm FROM ReimbursementHistory;
+```
+
+Consultar anexos:
+
+```sql
+SELECT id, nomeArquivo, tipoArquivo, urlArquivo, solicitacaoId FROM Attachment;
+```
+
+Para sair do SQLite:
+
+```sql
+.exit
+```
+
 ## Rodar localmente
 
 Em um terminal:
