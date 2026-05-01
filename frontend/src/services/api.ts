@@ -9,6 +9,18 @@ export const api = axios.create({
   baseURL: apiUrl
 });
 
+type UnauthorizedHandler = () => void;
+
+let onUnauthorized: UnauthorizedHandler | null = null;
+
+export function registerUnauthorizedHandler(handler: UnauthorizedHandler | null) {
+  onUnauthorized = handler;
+}
+
+function isLoginRequest(url: string | undefined) {
+  return typeof url === "string" && url.includes("auth/login");
+}
+
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
 
@@ -22,9 +34,8 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
+    if (error.response?.status === 401 && !isLoginRequest(error.config?.url)) {
+      onUnauthorized?.();
     }
 
     return Promise.reject(error);

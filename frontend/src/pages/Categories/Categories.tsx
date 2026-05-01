@@ -16,6 +16,8 @@ import { Category } from "../../types/category";
 export function Categories() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [nome, setNome] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editNome, setEditNome] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(true);
@@ -66,6 +68,38 @@ export function Categories() {
     }
   }
 
+  function startRename(category: Category) {
+    setError("");
+    setSuccess("");
+    setEditingId(category.id);
+    setEditNome(category.nome);
+  }
+
+  function cancelRename() {
+    setEditingId(null);
+    setEditNome("");
+  }
+
+  async function saveRename(categoryId: string) {
+    const trimmed = editNome.trim();
+    if (trimmed.length < 2) {
+      setError("Nome da categoria deve ter pelo menos 2 caracteres");
+      return;
+    }
+
+    setError("");
+    setSuccess("");
+
+    try {
+      await updateCategory(categoryId, { nome: trimmed });
+      cancelRename();
+      await load();
+      setSuccess("Nome da categoria atualizado");
+    } catch (err) {
+      setError(getApiErrorMessage(err));
+    }
+  }
+
   if (loading) return <Loading />;
 
   return (
@@ -100,23 +134,69 @@ export function Categories() {
             <TR>
               <TH>Nome</TH>
               <TH>Status</TH>
-              <TH></TH>
+              <TH className="text-right">Ações</TH>
             </TR>
           </THead>
           <TBody>
             {categories.map((category) => (
               <TR key={category.id}>
-                <TD>{category.nome}</TD>
+                <TD>
+                  {editingId === category.id ? (
+                    <Input
+                      aria-label={`Novo nome para ${category.nome}`}
+                      value={editNome}
+                      onChange={(event) => setEditNome(event.target.value)}
+                      required
+                      minLength={2}
+                    />
+                  ) : (
+                    category.nome
+                  )}
+                </TD>
                 <TD>{category.ativo ? "Ativa" : "Inativa"}</TD>
                 <TD className="text-right">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    type="button"
-                    onClick={() => toggleCategory(category)}
-                  >
-                    {category.ativo ? "Inativar" : "Ativar"}
-                  </Button>
+                  <div className="flex flex-wrap justify-end gap-2">
+                    {editingId === category.id ? (
+                      <>
+                        <Button
+                          size="sm"
+                          type="button"
+                          onClick={() => saveRename(category.id)}
+                        >
+                          Salvar nome
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          type="button"
+                          onClick={cancelRename}
+                        >
+                          Cancelar
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          type="button"
+                          disabled={editingId !== null && editingId !== category.id}
+                          onClick={() => startRename(category)}
+                        >
+                          Renomear
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          type="button"
+                          disabled={editingId !== null}
+                          onClick={() => toggleCategory(category)}
+                        >
+                          {category.ativo ? "Inativar" : "Ativar"}
+                        </Button>
+                      </>
+                    )}
+                  </div>
                 </TD>
               </TR>
             ))}

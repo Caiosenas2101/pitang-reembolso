@@ -1,5 +1,7 @@
-import { createContext, ReactNode, useContext, useMemo, useState } from "react";
+import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { loginRequest } from "../services/auth.service";
+import { registerUnauthorizedHandler } from "../services/api";
 import { User } from "../types/user";
 
 type AuthContextValue = {
@@ -18,8 +20,16 @@ function getStoredUser() {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(() => getStoredUser());
   const [token, setToken] = useState<string | null>(() => localStorage.getItem("token"));
+
+  const logout = useCallback(() => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setToken(null);
+    setUser(null);
+  }, []);
 
   async function login(email: string, senha: string) {
     const data = await loginRequest(email, senha);
@@ -29,12 +39,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(data.user);
   }
 
-  function logout() {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    setToken(null);
-    setUser(null);
-  }
+  useEffect(() => {
+    registerUnauthorizedHandler(() => {
+      logout();
+      navigate("/login", { replace: true });
+    });
+    return () => registerUnauthorizedHandler(null);
+  }, [logout, navigate]);
 
   const value = useMemo(
     () => ({
@@ -44,7 +55,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       login,
       logout
     }),
-    [token, user]
+    [token, user, logout]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
