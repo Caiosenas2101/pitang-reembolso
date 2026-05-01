@@ -10,7 +10,7 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:seed": "tsx prisma/seed.ts",
-    "db:init": "sqlite3 prisma/dev.db \".read prisma/migrations/000_init/migration.sql\" && npm run prisma:seed",
+    "db:init": "npm run prisma:generate && sqlite3 prisma/dev.db \".read prisma/migrations/000_init/migration.sql\" && npm run prisma:seed",
     "test": "jest --runInBand"
   },
   "prisma": {
