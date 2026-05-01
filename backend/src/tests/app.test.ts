@@ -339,4 +339,42 @@ describe("API", () => {
       "Apenas solicitações em rascunho podem receber anexos"
     );
   });
+
+  it("permite colaborador dono cancelar solicitação enviada", async () => {
+    await createUser(UserRole.COLABORADOR, "colaborador@teste.com");
+    const category = await createCategory();
+    const collaboratorToken = await login("colaborador@teste.com");
+
+    const created = await request(app)
+      .post("/reimbursements")
+      .set("Authorization", `Bearer ${collaboratorToken}`)
+      .send({
+        categoriaId: category.id,
+        descricao: "Transporte",
+        valor: 30,
+        dataDespesa: "2026-04-16"
+      });
+
+    await request(app)
+      .post(`/reimbursements/${created.body.id}/submit`)
+      .set("Authorization", `Bearer ${collaboratorToken}`)
+      .expect(200);
+
+    const canceled = await request(app)
+      .post(`/reimbursements/${created.body.id}/cancel`)
+      .set("Authorization", `Bearer ${collaboratorToken}`);
+
+    expect(canceled.status).toBe(200);
+    expect(canceled.body.status).toBe(ReimbursementStatus.CANCELADO);
+
+    const history = await request(app)
+      .get(`/reimbursements/${created.body.id}/history`)
+      .set("Authorization", `Bearer ${collaboratorToken}`);
+
+    expect(history.body.map((item: { acao: string }) => item.acao)).toEqual([
+      HistoryAction.CREATED,
+      HistoryAction.SUBMITTED,
+      HistoryAction.CANCELED
+    ]);
+  });
 });

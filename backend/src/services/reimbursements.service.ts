@@ -200,8 +200,17 @@ export const reimbursementsService = {
     const reimbursement = await getRequiredReimbursement(id);
     ensureOwner(reimbursement, user);
 
-    if (reimbursement.status !== ReimbursementStatus.RASCUNHO) {
-      throw new AppError("Apenas solicitações em rascunho podem ser canceladas", 400, "Bad Request");
+    const cancelableStatuses: string[] = [
+      ReimbursementStatus.RASCUNHO,
+      ReimbursementStatus.ENVIADO
+    ];
+
+    if (!cancelableStatuses.includes(reimbursement.status)) {
+      throw new AppError(
+        "Apenas solicitações em rascunho ou enviadas podem ser canceladas",
+        400,
+        "Bad Request"
+      );
     }
 
     const updated = await reimbursementsRepository.changeStatus(id, ReimbursementStatus.CANCELADO);

@@ -14,7 +14,11 @@ export function canSubmit(user: User | null, reimbursement: Reimbursement) {
 }
 
 export function canCancel(user: User | null, reimbursement: Reimbursement) {
-  return canEdit(user, reimbursement);
+  return (
+    user?.perfil === "COLABORADOR" &&
+    reimbursement.solicitanteId === user.id &&
+    ["RASCUNHO", "ENVIADO"].includes(reimbursement.status)
+  );
 }
 
 export function canApproveOrReject(user: User | null, reimbursement: Reimbursement) {
