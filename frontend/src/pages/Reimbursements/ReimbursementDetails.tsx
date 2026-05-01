@@ -220,7 +220,9 @@ export function ReimbursementDetails() {
         </Card>
       )}
 
-      {user?.perfil === "COLABORADOR" && reimbursement.solicitanteId === user.id && (
+      {user?.perfil === "COLABORADOR" &&
+        reimbursement.solicitanteId === user.id &&
+        reimbursement.status === "RASCUNHO" && (
         <Card className="mb-6">
           <CardHeader>
             <CardTitle className="text-lg">Anexo</CardTitle>

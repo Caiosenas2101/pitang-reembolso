@@ -16,6 +16,8 @@ O backend deve estar rodando em `http://localhost:3333`.
 
 ## Testes
 
+O frontend usa Jest + React Testing Library.
+
 ```bash
 npm run build
 npm test

@@ -304,4 +304,39 @@ describe("API", () => {
       tipoArquivo: "PDF"
     });
   });
+
+  it("bloqueia anexo após envio da solicitação", async () => {
+    await createUser(UserRole.COLABORADOR, "colaborador@teste.com");
+    const category = await createCategory();
+    const collaboratorToken = await login("colaborador@teste.com");
+
+    const created = await request(app)
+      .post("/reimbursements")
+      .set("Authorization", `Bearer ${collaboratorToken}`)
+      .send({
+        categoriaId: category.id,
+        descricao: "Almoço",
+        valor: 40,
+        dataDespesa: "2026-04-17"
+      });
+
+    await request(app)
+      .post(`/reimbursements/${created.body.id}/submit`)
+      .set("Authorization", `Bearer ${collaboratorToken}`)
+      .expect(200);
+
+    const attachmentAfterSubmit = await request(app)
+      .post(`/reimbursements/${created.body.id}/attachments`)
+      .set("Authorization", `Bearer ${collaboratorToken}`)
+      .send({
+        nomeArquivo: "nota.pdf",
+        urlArquivo: "https://exemplo.com/nota.pdf",
+        tipoArquivo: "pdf"
+      });
+
+    expect(attachmentAfterSubmit.status).toBe(400);
+    expect(attachmentAfterSubmit.body.message).toBe(
+      "Apenas solicitações em rascunho podem receber anexos"
+    );
+  });
 });

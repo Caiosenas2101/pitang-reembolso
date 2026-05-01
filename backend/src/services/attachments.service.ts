@@ -1,4 +1,4 @@
-import { UserRole } from "../constants/enums";
+import { ReimbursementStatus, UserRole } from "../constants/enums";
 import { AppError } from "../errors/AppError";
 import { attachmentsRepository } from "../repositories/attachments.repository";
 import { reimbursementsRepository } from "../repositories/reimbursements.repository";
@@ -32,6 +32,14 @@ export const attachmentsService = {
   ) {
     const reimbursement = await getRequiredReimbursement(solicitacaoId);
     ensureOwner(user, reimbursement.solicitanteId);
+
+    if (reimbursement.status !== ReimbursementStatus.RASCUNHO) {
+      throw new AppError(
+        "Apenas solicitações em rascunho podem receber anexos",
+        400,
+        "Bad Request"
+      );
+    }
 
     return attachmentsRepository.create({
       solicitacaoId,
