@@ -1,0 +1,67 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String                 @id @default(uuid())
+  nome           String
+  email          String                 @unique
+  senha          String
+  perfil         String
+  criadoEm       DateTime               @default(now())
+  atualizadoEm   DateTime               @updatedAt
+  reimbursements Reimbursement[]        @relation("UserReimbursements")
+  histories      ReimbursementHistory[]
+}
+
+model Category {
+  id             String          @id @default(uuid())
+  nome           String
+  ativo          Boolean         @default(true)
+  criadoEm       DateTime        @default(now())
+  atualizadoEm   DateTime        @updatedAt
+  reimbursements Reimbursement[]
+}
+
+model Reimbursement {
+  id                    String                 @id @default(uuid())
+  solicitanteId         String
+  categoriaId           String
+  descricao             String
+  valor                 Decimal
+  dataDespesa           DateTime
+  status                String                 @default("RASCUNHO")
+  justificativaRejeicao String?
+  criadoEm              DateTime               @default(now())
+  atualizadoEm          DateTime               @updatedAt
+  solicitante           User                   @relation("UserReimbursements", fields: [solicitanteId], references: [id])
+  categoria             Category               @relation(fields: [categoriaId], references: [id])
+  anexos                Attachment[]
+  historico             ReimbursementHistory[]
+}
+
+model Attachment {
+  id             String        @id @default(uuid())
+  solicitacaoId  String
+  nomeArquivo    String
+  urlArquivo     String
+  tipoArquivo    String
+  criadoEm       DateTime      @default(now())
+  solicitacao    Reimbursement @relation(fields: [solicitacaoId], references: [id])
+}
+
+model ReimbursementHistory {
+  id            String        @id @default(uuid())
+  solicitacaoId String
+  usuarioId     String
+  acao          String
+  observacao    String
+  criadoEm      DateTime      @default(now())
+  solicitacao   Reimbursement @relation(fields: [solicitacaoId], references: [id])
+  usuario       User          @relation(fields: [usuarioId], references: [id])
+}
