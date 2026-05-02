@@ -1,0 +1,26 @@
+info:
+  name: Criar Usuario
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: http://localhost:3333/users
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "nome": "Usuario Bruno",
+        "email": "usuario.bruno@teste.com",
+        "senha": "123456",
+        "perfil": "COLABORADOR"
+      }
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

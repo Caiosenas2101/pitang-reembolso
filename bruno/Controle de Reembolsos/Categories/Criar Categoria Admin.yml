@@ -1,0 +1,33 @@
+info:
+  name: Criar Categoria Admin
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: http://localhost:3333/categories
+  auth:
+    type: bearer
+    token: "{{token}}"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "nome": "Hospedagem",
+        "ativo": true
+      }
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        bru.setVar("categoryId", res.body.id);
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

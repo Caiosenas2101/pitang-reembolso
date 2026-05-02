@@ -1,0 +1,17 @@
+info:
+  name: Aprovar Reembolso
+  type: http
+  seq: 5
+
+http:
+  method: POST
+  url: http://localhost:3333/reimbursements/{{reimbursementId}}/approve
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

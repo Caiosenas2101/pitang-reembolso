@@ -1,0 +1,27 @@
+info:
+  name: Editar Rascunho
+  type: http
+  seq: 8
+
+http:
+  method: PUT
+  url: http://localhost:3333/reimbursements/{{reimbursementId}}
+  auth:
+    type: bearer
+    token: "{{token}}"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "descricao": "Corrida por aplicativo para reuniao com cliente",
+        "valor": 45.9
+      }
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
