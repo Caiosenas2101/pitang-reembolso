@@ -58,7 +58,11 @@ describe("Dashboard", () => {
     await user.selectOptions(screen.getByLabelText("Status"), "APROVADO");
 
     await waitFor(() => {
-      expect(listReimbursements).toHaveBeenLastCalledWith({ status: "APROVADO" });
+      expect(listReimbursements).toHaveBeenLastCalledWith({
+        status: "APROVADO",
+        sortBy: "dataDespesa",
+        sortOrder: "desc"
+      });
     });
 
     await user.selectOptions(screen.getByLabelText("Categoria"), "categoria-1");
@@ -66,7 +70,32 @@ describe("Dashboard", () => {
     await waitFor(() => {
       expect(listReimbursements).toHaveBeenLastCalledWith({
         status: "APROVADO",
-        categoriaId: "categoria-1"
+        categoriaId: "categoria-1",
+        sortBy: "dataDespesa",
+        sortOrder: "desc"
+      });
+    });
+  });
+
+  it("envia ordenação por data ou valor para a API", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <MemoryRouter>
+        <AuthProvider>
+          <Dashboard />
+        </AuthProvider>
+      </MemoryRouter>
+    );
+
+    await screen.findByLabelText("Ordenar por");
+    await user.selectOptions(screen.getByLabelText("Ordenar por"), "valor");
+    await user.selectOptions(screen.getByLabelText("Direção"), "asc");
+
+    await waitFor(() => {
+      expect(listReimbursements).toHaveBeenLastCalledWith({
+        sortBy: "valor",
+        sortOrder: "asc"
       });
     });
   });

@@ -72,6 +72,52 @@ describe("API", () => {
     expect(response.status).toBe(401);
   });
 
+  it("ordena solicitações por data ou valor", async () => {
+    await createUser(UserRole.COLABORADOR, "colaborador@teste.com");
+    const category = await createCategory();
+    const collaboratorToken = await login("colaborador@teste.com");
+
+    await request(app)
+      .post("/reimbursements")
+      .set("Authorization", `Bearer ${collaboratorToken}`)
+      .send({
+        categoriaId: category.id,
+        descricao: "Despesa antiga",
+        valor: 20,
+        dataDespesa: "2026-04-15"
+      });
+
+    await request(app)
+      .post("/reimbursements")
+      .set("Authorization", `Bearer ${collaboratorToken}`)
+      .send({
+        categoriaId: category.id,
+        descricao: "Despesa recente",
+        valor: 80,
+        dataDespesa: "2026-04-20"
+      });
+
+    const byDate = await request(app)
+      .get("/reimbursements?sortBy=dataDespesa&sortOrder=asc")
+      .set("Authorization", `Bearer ${collaboratorToken}`);
+
+    expect(byDate.status).toBe(200);
+    expect(byDate.body.map((item: { descricao: string }) => item.descricao)).toEqual([
+      "Despesa antiga",
+      "Despesa recente"
+    ]);
+
+    const byValue = await request(app)
+      .get("/reimbursements?sortBy=valor&sortOrder=desc")
+      .set("Authorization", `Bearer ${collaboratorToken}`);
+
+    expect(byValue.status).toBe(200);
+    expect(byValue.body.map((item: { descricao: string }) => item.descricao)).toEqual([
+      "Despesa recente",
+      "Despesa antiga"
+    ]);
+  });
+
   it("valida payload de cadastro de usuário", async () => {
     const response = await request(app).post("/users").send({
       nome: "A",

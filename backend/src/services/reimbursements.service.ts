@@ -10,6 +10,13 @@ type AuthUser = {
   perfil: UserRole;
 };
 
+type ListReimbursementsFilters = {
+  status?: ReimbursementStatus;
+  categoriaId?: string;
+  sortBy?: "dataDespesa" | "valor";
+  sortOrder?: Prisma.SortOrder;
+};
+
 function ensureOwner(reimbursement: { solicitanteId: string }, user: AuthUser) {
   if (reimbursement.solicitanteId !== user.id) {
     throw new AppError("Usuário não tem permissão para esta solicitação", 403, "Forbidden");
@@ -53,8 +60,10 @@ export const reimbursementsService = {
     return reimbursement;
   },
 
-  async list(user: AuthUser, filters: { status?: ReimbursementStatus; categoriaId?: string }) {
+  async list(user: AuthUser, filters: ListReimbursementsFilters) {
     const where: Prisma.ReimbursementWhereInput = {};
+    const sortBy = filters.sortBy ?? "dataDespesa";
+    const sortOrder = filters.sortOrder ?? "desc";
 
     if (filters.status) where.status = filters.status;
     if (filters.categoriaId) where.categoriaId = filters.categoriaId;
@@ -71,7 +80,7 @@ export const reimbursementsService = {
       where.status = ReimbursementStatus.APROVADO;
     }
 
-    return reimbursementsRepository.list(where);
+    return reimbursementsRepository.list(where, { [sortBy]: sortOrder });
   },
 
   async findById(user: AuthUser, id: string) {

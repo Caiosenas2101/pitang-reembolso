@@ -21,5 +21,7 @@ export const rejectReimbursementSchema = z.object({
 
 export const listReimbursementsQuerySchema = z.object({
   status: z.nativeEnum(ReimbursementStatus).optional(),
-  categoriaId: z.string().uuid("Categoria inválida").optional()
+  categoriaId: z.string().uuid("Categoria inválida").optional(),
+  sortBy: z.enum(["dataDespesa", "valor"]).optional(),
+  sortOrder: z.enum(["asc", "desc"]).optional()
 });

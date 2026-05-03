@@ -8,6 +8,8 @@ import { api } from "./api";
 type ListReimbursementsFilters = {
   status?: string;
   categoriaId?: string;
+  sortBy?: "dataDespesa" | "valor";
+  sortOrder?: "asc" | "desc";
 };
 
 export async function listReimbursements(filters: ListReimbursementsFilters = {}) {

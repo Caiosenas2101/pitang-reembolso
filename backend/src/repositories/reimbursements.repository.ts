@@ -15,6 +15,10 @@ const includeRelations = {
   anexos: true
 } satisfies Prisma.ReimbursementInclude;
 
+type ReimbursementSortBy = "dataDespesa" | "valor";
+type SortOrder = Prisma.SortOrder;
+type ReimbursementOrderBy = Partial<Record<ReimbursementSortBy, SortOrder>>;
+
 export const reimbursementsRepository = {
   create(data: {
     solicitanteId: string;
@@ -36,11 +40,14 @@ export const reimbursementsRepository = {
     });
   },
 
-  list(where: Prisma.ReimbursementWhereInput) {
+  list(
+    where: Prisma.ReimbursementWhereInput,
+    orderBy: ReimbursementOrderBy
+  ) {
     return prisma.reimbursement.findMany({
       where,
       include: includeRelations,
-      orderBy: { criadoEm: "desc" }
+      orderBy
     });
   },
 
