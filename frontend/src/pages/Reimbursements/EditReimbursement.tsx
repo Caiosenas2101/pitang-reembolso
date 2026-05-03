@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { ErrorMessage, Loading } from "../../components/Feedback";
+import { Card, CardContent } from "../../components/ui/card";
 import { getApiErrorMessage } from "../../services/api";
 import { getReimbursement } from "../../services/reimbursements.service";
 import { Reimbursement } from "../../types/reimbursement";
@@ -30,9 +31,15 @@ export function EditReimbursement() {
 
   return (
     <section>
-      <h1 className="mb-4 text-2xl font-semibold">Editar solicitação</h1>
+      <h1 className="mb-4 text-2xl font-semibold text-white">Editar solicitação</h1>
       {error && <ErrorMessage message={error} />}
-      {reimbursement && <ReimbursementForm reimbursement={reimbursement} />}
+      {reimbursement && (
+        <Card>
+          <CardContent className="p-6">
+            <ReimbursementForm reimbursement={reimbursement} />
+          </CardContent>
+        </Card>
+      )}
     </section>
   );
 }

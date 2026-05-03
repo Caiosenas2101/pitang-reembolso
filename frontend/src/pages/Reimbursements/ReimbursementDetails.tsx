@@ -113,7 +113,7 @@ export function ReimbursementDetails() {
     <section>
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="mb-2 text-2xl font-semibold">{reimbursement.descricao}</h1>
+          <h1 className="mb-2 text-2xl font-semibold text-white">{reimbursement.descricao}</h1>
           <StatusBadge status={reimbursement.status} />
         </div>
         {canEdit(user, reimbursement) && (
@@ -276,9 +276,9 @@ export function ReimbursementDetails() {
       )}
 
       <div className="mb-6">
-        <h2 className="mb-3 text-lg font-semibold">Anexos</h2>
+        <h2 className="mb-3 text-lg font-semibold text-white">Anexos</h2>
         {reimbursement.anexos?.length ? (
-          <div className="divide-y rounded-lg border bg-background">
+          <div className="divide-y divide-[#f4d6d1] rounded-lg border border-[#f1cbc5] bg-white/95 shadow-xl shadow-[#f01824]/10">
             {reimbursement.anexos.map((attachment) => (
               <div className="p-3 text-sm" key={attachment.id}>
                 {attachment.nomeArquivo} · {attachment.tipoArquivo}
@@ -286,13 +286,13 @@ export function ReimbursementDetails() {
             ))}
           </div>
         ) : (
-          <p className="text-sm text-muted-foreground">Nenhum anexo cadastrado.</p>
+          <p className="text-sm text-white/55">Nenhum anexo cadastrado.</p>
         )}
       </div>
 
       <div>
-        <h2 className="mb-3 text-lg font-semibold">Histórico</h2>
-        <div className="divide-y rounded-lg border bg-background">
+        <h2 className="mb-3 text-lg font-semibold text-white">Histórico</h2>
+        <div className="divide-y divide-[#f4d6d1] rounded-lg border border-[#f1cbc5] bg-white/95 shadow-xl shadow-[#f01824]/10">
           {history.map((item) => (
             <div className="p-3" key={item.id}>
               <div className="font-semibold">{item.acao}</div>

@@ -10,7 +10,7 @@ export function Table({ className, ...props }: React.TableHTMLAttributes<HTMLTab
 }
 
 export function THead({ className, ...props }: React.HTMLAttributes<HTMLTableSectionElement>) {
-  return <thead className={cn("[&_tr]:border-b", className)} {...props} />;
+  return <thead className={cn("bg-[#fff1ee] [&_tr]:border-b [&_tr]:border-[#f1cbc5]", className)} {...props} />;
 }
 
 export function TBody({ className, ...props }: React.HTMLAttributes<HTMLTableSectionElement>) {
@@ -20,7 +20,7 @@ export function TBody({ className, ...props }: React.HTMLAttributes<HTMLTableSec
 export function TR({ className, ...props }: React.HTMLAttributes<HTMLTableRowElement>) {
   return (
     <tr
-      className={cn("border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted", className)}
+      className={cn("border-b border-[#f4d6d1] transition-colors hover:bg-[#fff6f4] data-[state=selected]:bg-muted", className)}
       {...props}
     />
   );
@@ -29,7 +29,7 @@ export function TR({ className, ...props }: React.HTMLAttributes<HTMLTableRowEle
 export function TH({ className, ...props }: React.ThHTMLAttributes<HTMLTableCellElement>) {
   return (
     <th
-      className={cn("h-12 px-4 text-left align-middle font-medium text-muted-foreground", className)}
+      className={cn("h-12 px-4 text-left align-middle font-semibold uppercase tracking-[0.08em] text-[#8f5854]", className)}
       {...props}
     />
   );

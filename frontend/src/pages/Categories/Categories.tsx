@@ -1,7 +1,7 @@
 import { FormEvent, useEffect, useState } from "react";
 import { ErrorMessage, Loading, SuccessMessage } from "../../components/Feedback";
 import { Button } from "../../components/ui/button";
-import { Card, CardContent } from "../../components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import { Table, TBody, TD, TH, THead, TR } from "../../components/ui/table";
@@ -104,28 +104,35 @@ export function Categories() {
 
   return (
     <section>
-      <h1 className="mb-4 text-2xl font-semibold">Categorias</h1>
+      <h1 className="mb-4 text-2xl font-semibold text-white">Categorias</h1>
       {error && <ErrorMessage message={error} />}
       {success && <SuccessMessage message={success} />}
 
-      <form className="mb-6 grid gap-3 md:grid-cols-[1fr_auto]" onSubmit={handleSubmit}>
-        <div className="space-y-2">
-          <Label htmlFor="nome">
-            Nome
-          </Label>
-          <Input
-            id="nome"
-            value={nome}
-            onChange={(event) => setNome(event.target.value)}
-            required
-          />
-        </div>
-        <div className="flex items-end">
-          <Button type="submit">
-            Criar categoria
-          </Button>
-        </div>
-      </form>
+      <Card className="mb-6">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg">Nova categoria</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form className="grid gap-3 md:grid-cols-[1fr_auto]" onSubmit={handleSubmit}>
+            <div className="space-y-2">
+              <Label htmlFor="nome">
+                Nome
+              </Label>
+              <Input
+                id="nome"
+                value={nome}
+                onChange={(event) => setNome(event.target.value)}
+                required
+              />
+            </div>
+            <div className="flex items-end">
+              <Button type="submit">
+                Criar categoria
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardContent className="p-0">

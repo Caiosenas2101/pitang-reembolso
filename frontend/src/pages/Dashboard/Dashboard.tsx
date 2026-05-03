@@ -23,6 +23,8 @@ export function Dashboard() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [status, setStatus] = useState("");
   const [categoriaId, setCategoriaId] = useState("");
+  const [sortBy, setSortBy] = useState<"dataDespesa" | "valor">("dataDespesa");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -34,7 +36,9 @@ export function Dashboard() {
       setReimbursements(
         await listReimbursements({
           ...(status ? { status } : {}),
-          ...(categoriaId ? { categoriaId } : {})
+          ...(categoriaId ? { categoriaId } : {}),
+          sortBy,
+          sortOrder
         })
       );
     } catch (err) {
@@ -42,7 +46,7 @@ export function Dashboard() {
     } finally {
       setLoading(false);
     }
-  }, [categoriaId, status]);
+  }, [categoriaId, sortBy, sortOrder, status]);
 
   useEffect(() => {
     async function loadInitialData() {
@@ -69,8 +73,8 @@ export function Dashboard() {
     <section>
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">Solicitações</h1>
-          <p className="text-sm text-muted-foreground">Listagem conforme o perfil do usuário logado.</p>
+          <h1 className="text-2xl font-semibold text-white">Solicitações</h1>
+          <p className="text-sm text-white/55">Listagem conforme o perfil do usuário logado.</p>
         </div>
         {user?.perfil === "COLABORADOR" && (
           <Link className={buttonVariants()} to="/reimbursements/new">Nova solicitação</Link>
@@ -79,7 +83,7 @@ export function Dashboard() {
 
       {error && <ErrorMessage message={error} />}
       <Card className="mb-4">
-        <CardContent className="grid gap-4 p-4 md:grid-cols-[1fr_1fr_auto]">
+        <CardContent className="grid gap-4 p-4 md:grid-cols-[1fr_1fr_1fr_1fr_auto]">
           <div className="space-y-2">
             <Label htmlFor="status">Status</Label>
             <Select id="status" value={status} onChange={(event) => setStatus(event.target.value)}>
@@ -104,6 +108,28 @@ export function Dashboard() {
                   {category.nome}
                 </option>
               ))}
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="sortBy">Ordenar por</Label>
+            <Select
+              id="sortBy"
+              value={sortBy}
+              onChange={(event) => setSortBy(event.target.value as "dataDespesa" | "valor")}
+            >
+              <option value="dataDespesa">Data</option>
+              <option value="valor">Valor</option>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="sortOrder">Direção</Label>
+            <Select
+              id="sortOrder"
+              value={sortOrder}
+              onChange={(event) => setSortOrder(event.target.value as "asc" | "desc")}
+            >
+              <option value="desc">Maior/mais recente</option>
+              <option value="asc">Menor/mais antiga</option>
             </Select>
           </div>
           <div className="flex items-end">
