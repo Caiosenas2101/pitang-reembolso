@@ -36,6 +36,16 @@ O banco usado localmente é SQLite e fica neste arquivo:
 backend/prisma/dev.db
 ```
 
+Esse é o banco da aplicação em desenvolvimento. Reiniciar o backend não apaga esses dados.
+
+Os testes usam outro arquivo separado:
+
+```txt
+backend/prisma/test.db
+```
+
+Assim, rodar `npm test` não limpa os dados que você criou usando a aplicação.
+
 Para abrir o banco pelo terminal:
 
 ```bash

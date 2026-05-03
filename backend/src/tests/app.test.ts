@@ -1,8 +1,16 @@
 import request from "supertest";
+import { execFileSync } from "node:child_process";
 import { app } from "../app";
 import { HistoryAction, ReimbursementStatus, UserRole } from "../constants/enums";
 import { prisma } from "../repositories/prisma";
 import { hashPassword } from "../utils/password";
+
+beforeAll(() => {
+  execFileSync("sqlite3", [
+    "prisma/test.db",
+    ".read prisma/migrations/000_init/migration.sql"
+  ]);
+});
 
 async function resetDatabase() {
   await prisma.reimbursementHistory.deleteMany();
