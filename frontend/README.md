@@ -23,6 +23,9 @@ npm run build
 npm test
 ```
 
+A suíte cobre renderização de componentes, rota privada, mensagem de erro no login,
+renderização condicional por perfil e envio do formulário de solicitação.
+
 ## Funcionalidades obrigatórias cobertas
 
 - Login com armazenamento de token e usuário no Context API.
