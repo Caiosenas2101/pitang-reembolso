@@ -5,8 +5,15 @@ import {
 } from "../types/reimbursement";
 import { api } from "./api";
 
-export async function listReimbursements() {
-  const response = await api.get<Reimbursement[]>("/reimbursements");
+type ListReimbursementsFilters = {
+  status?: string;
+  categoriaId?: string;
+};
+
+export async function listReimbursements(filters: ListReimbursementsFilters = {}) {
+  const response = await api.get<Reimbursement[]>("/reimbursements", {
+    params: filters
+  });
   return response.data;
 }
 

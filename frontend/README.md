@@ -32,6 +32,7 @@ renderização condicional por perfil e envio do formulário de solicitação.
 - Cadastro de usuário.
 - Rotas privadas.
 - Listagem de solicitações conforme o perfil retornado pela API.
+- Filtro de solicitações por status e categoria.
 - Criação e edição de solicitação pelo colaborador.
 - Detalhe da solicitação com status, anexos e histórico.
 - Ações por perfil/status: enviar, cancelar, aprovar, rejeitar e pagar.
