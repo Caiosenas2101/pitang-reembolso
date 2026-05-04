@@ -4,6 +4,7 @@ import { EmptyState, ErrorMessage, Loading } from "../../components/Feedback";
 import { StatusBadge } from "../../components/StatusBadge";
 import { Button, buttonVariants } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
+import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import { Select } from "../../components/ui/select";
 import { Table, TBody, TD, TH, THead, TR } from "../../components/ui/table";
@@ -16,6 +17,67 @@ import { Reimbursement } from "../../types/reimbursement";
 import { formatCurrency, formatDate } from "../../utils/format";
 
 const statuses = ["RASCUNHO", "ENVIADO", "APROVADO", "REJEITADO", "PAGO", "CANCELADO"];
+type SortOption = "dataDespesa:desc" | "dataDespesa:asc" | "valor:desc" | "valor:asc";
+
+type AppliedFilters = {
+  status: string;
+  categoriaId: string;
+  colaborador: string;
+  sortBy: "dataDespesa" | "valor";
+  sortOrder: "asc" | "desc";
+};
+
+const sortOptions: { label: string; value: SortOption }[] = [
+  { label: "Data mais recente", value: "dataDespesa:desc" },
+  { label: "Data mais antiga", value: "dataDespesa:asc" },
+  { label: "Maior valor", value: "valor:desc" },
+  { label: "Menor valor", value: "valor:asc" }
+];
+
+const defaultAppliedFilters: AppliedFilters = {
+  status: "",
+  categoriaId: "",
+  colaborador: "",
+  sortBy: "dataDespesa",
+  sortOrder: "desc"
+};
+
+function normalizeSearch(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
+
+function applyReimbursementFilters(items: Reimbursement[], filters: AppliedFilters) {
+  const collaboratorSearch = normalizeSearch(filters.colaborador);
+
+  return [...items]
+    .filter((item) => {
+      if (filters.status && item.status !== filters.status) return false;
+      if (filters.categoriaId && item.categoriaId !== filters.categoriaId) return false;
+
+      if (collaboratorSearch) {
+        const requesterName = normalizeSearch(item.solicitante?.nome ?? "");
+        const requesterEmail = normalizeSearch(item.solicitante?.email ?? "");
+
+        if (!requesterName.includes(collaboratorSearch) && !requesterEmail.includes(collaboratorSearch)) {
+          return false;
+        }
+      }
+
+      return true;
+    })
+    .sort((first, second) => {
+      const direction = filters.sortOrder === "asc" ? 1 : -1;
+
+      if (filters.sortBy === "valor") {
+        return (Number(first.valor) - Number(second.valor)) * direction;
+      }
+
+      return (new Date(first.dataDespesa).getTime() - new Date(second.dataDespesa).getTime()) * direction;
+    });
+}
 
 export function Dashboard() {
   const { user } = useAuth();
@@ -23,8 +85,9 @@ export function Dashboard() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [status, setStatus] = useState("");
   const [categoriaId, setCategoriaId] = useState("");
-  const [sortBy, setSortBy] = useState<"dataDespesa" | "valor">("dataDespesa");
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const [colaborador, setColaborador] = useState("");
+  const [sortOption, setSortOption] = useState<SortOption>("dataDespesa:desc");
+  const [appliedFilters, setAppliedFilters] = useState<AppliedFilters>(defaultAppliedFilters);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -33,20 +96,21 @@ export function Dashboard() {
     setLoading(true);
 
     try {
-      setReimbursements(
-        await listReimbursements({
-          ...(status ? { status } : {}),
-          ...(categoriaId ? { categoriaId } : {}),
-          sortBy,
-          sortOrder
-        })
-      );
+      const data = await listReimbursements({
+        ...(appliedFilters.status ? { status: appliedFilters.status } : {}),
+        ...(appliedFilters.categoriaId ? { categoriaId: appliedFilters.categoriaId } : {}),
+        ...(appliedFilters.colaborador ? { colaborador: appliedFilters.colaborador } : {}),
+        sortBy: appliedFilters.sortBy,
+        sortOrder: appliedFilters.sortOrder
+      });
+
+      setReimbursements(applyReimbursementFilters(data, appliedFilters));
     } catch (err) {
       setError(getApiErrorMessage(err));
     } finally {
       setLoading(false);
     }
-  }, [categoriaId, sortBy, sortOrder, status]);
+  }, [appliedFilters]);
 
   useEffect(() => {
     async function loadInitialData() {
@@ -65,9 +129,24 @@ export function Dashboard() {
   function clearFilters() {
     setStatus("");
     setCategoriaId("");
+    setColaborador("");
+    setSortOption("dataDespesa:desc");
+    setAppliedFilters(defaultAppliedFilters);
   }
 
-  if (loading) return <Loading />;
+  function applyFilters() {
+    const [sortBy, sortOrder] = sortOption.split(":") as ["dataDespesa" | "valor", "asc" | "desc"];
+
+    setAppliedFilters({
+      status,
+      categoriaId,
+      colaborador: colaborador.trim(),
+      sortBy,
+      sortOrder
+    });
+  }
+
+  if (loading && categories.length === 0) return <Loading />;
 
   return (
     <section>
@@ -83,7 +162,16 @@ export function Dashboard() {
 
       {error && <ErrorMessage message={error} />}
       <Card className="mb-4">
-        <CardContent className="grid gap-4 p-4 md:grid-cols-[1fr_1fr_1fr_1fr_auto]">
+        <CardContent className="grid gap-4 p-4 md:grid-cols-[1.2fr_1fr_1fr_1fr_auto_auto]">
+          <div className="space-y-2">
+            <Label htmlFor="colaborador">Colaborador</Label>
+            <Input
+              id="colaborador"
+              value={colaborador}
+              onChange={(event) => setColaborador(event.target.value)}
+              placeholder="Nome ou e-mail"
+            />
+          </div>
           <div className="space-y-2">
             <Label htmlFor="status">Status</Label>
             <Select id="status" value={status} onChange={(event) => setStatus(event.target.value)}>
@@ -111,26 +199,23 @@ export function Dashboard() {
             </Select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="sortBy">Ordenar por</Label>
+            <Label htmlFor="sortOption">Ordenação</Label>
             <Select
-              id="sortBy"
-              value={sortBy}
-              onChange={(event) => setSortBy(event.target.value as "dataDespesa" | "valor")}
+              id="sortOption"
+              value={sortOption}
+              onChange={(event) => setSortOption(event.target.value as SortOption)}
             >
-              <option value="dataDespesa">Data</option>
-              <option value="valor">Valor</option>
+              {sortOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
             </Select>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="sortOrder">Direção</Label>
-            <Select
-              id="sortOrder"
-              value={sortOrder}
-              onChange={(event) => setSortOrder(event.target.value as "asc" | "desc")}
-            >
-              <option value="desc">Maior/mais recente</option>
-              <option value="asc">Menor/mais antiga</option>
-            </Select>
+          <div className="flex items-end">
+            <Button type="button" onClick={applyFilters}>
+              Aplicar filtros
+            </Button>
           </div>
           <div className="flex items-end">
             <Button variant="outline" type="button" onClick={clearFilters}>

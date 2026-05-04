@@ -13,9 +13,17 @@ type AuthUser = {
 type ListReimbursementsFilters = {
   status?: ReimbursementStatus;
   categoriaId?: string;
+  colaborador?: string;
   sortBy?: "dataDespesa" | "valor";
   sortOrder?: Prisma.SortOrder;
 };
+
+function normalizeSearch(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
 
 function ensureOwner(reimbursement: { solicitanteId: string }, user: AuthUser) {
   if (reimbursement.solicitanteId !== user.id) {
@@ -80,7 +88,19 @@ export const reimbursementsService = {
       where.status = ReimbursementStatus.APROVADO;
     }
 
-    return reimbursementsRepository.list(where, { [sortBy]: sortOrder });
+    const reimbursements = await reimbursementsRepository.list(where, { [sortBy]: sortOrder });
+
+    if (!filters.colaborador) return reimbursements;
+
+    const search = normalizeSearch(filters.colaborador);
+
+    return reimbursements.filter((reimbursement) => {
+      const requester = reimbursement.solicitante;
+      const name = normalizeSearch(requester.nome);
+      const email = normalizeSearch(requester.email);
+
+      return name.includes(search) || email.includes(search);
+    });
   },
 
   async findById(user: AuthUser, id: string) {

@@ -8,6 +8,7 @@ import { api } from "./api";
 type ListReimbursementsFilters = {
   status?: string;
   categoriaId?: string;
+  colaborador?: string;
   sortBy?: "dataDespesa" | "valor";
   sortOrder?: "asc" | "desc";
 };

@@ -62,7 +62,7 @@ Todos usam a senha `123456`.
 - `GET /categories`
 - `POST /categories`
 - `PUT /categories/:id`
-- `GET /reimbursements` - aceita `status`, `categoriaId`, `sortBy=dataDespesa|valor` e `sortOrder=asc|desc`
+- `GET /reimbursements` - aceita `status`, `categoriaId`, `colaborador`, `sortBy=dataDespesa|valor` e `sortOrder=asc|desc`
 - `POST /reimbursements`
 - `GET /reimbursements/:id`
 - `PUT /reimbursements/:id`

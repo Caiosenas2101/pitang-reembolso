@@ -5,7 +5,7 @@ info:
 
 http:
   method: GET
-  url: http://localhost:3333/reimbursements?sortBy=dataDespesa&sortOrder=desc
+  url: http://localhost:3333/reimbursements?colaborador=teste&sortBy=dataDespesa&sortOrder=desc
   auth:
     type: bearer
     token: "{{token}}"
