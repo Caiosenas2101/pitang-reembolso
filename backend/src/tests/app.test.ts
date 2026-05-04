@@ -118,47 +118,6 @@ describe("API", () => {
     ]);
   });
 
-  it("filtra solicitações por colaborador", async () => {
-    await createUser(UserRole.ADMIN, "admin@teste.com", "Admin Teste");
-    await createUser(UserRole.COLABORADOR, "ana@teste.com", "Ana Silva");
-    await createUser(UserRole.COLABORADOR, "bruno@teste.com", "Bruno Costa");
-    const category = await createCategory();
-
-    const adminToken = await login("admin@teste.com");
-    const anaToken = await login("ana@teste.com");
-    const brunoToken = await login("bruno@teste.com");
-
-    await request(app)
-      .post("/reimbursements")
-      .set("Authorization", `Bearer ${anaToken}`)
-      .send({
-        categoriaId: category.id,
-        descricao: "Despesa da Ana",
-        valor: 45,
-        dataDespesa: "2026-04-21"
-      });
-
-    await request(app)
-      .post("/reimbursements")
-      .set("Authorization", `Bearer ${brunoToken}`)
-      .send({
-        categoriaId: category.id,
-        descricao: "Despesa do Bruno",
-        valor: 55,
-        dataDespesa: "2026-04-22"
-      });
-
-    const response = await request(app)
-      .get("/reimbursements?colaborador=ana")
-      .set("Authorization", `Bearer ${adminToken}`);
-
-    expect(response.status).toBe(200);
-    expect(response.body.map((item: { descricao: string }) => item.descricao)).toEqual([
-      "Despesa da Ana"
-    ]);
-    expect(response.body[0].solicitante.nome).toBe("Ana Silva");
-  });
-
   it("valida payload de cadastro de usuário", async () => {
     const response = await request(app).post("/users").send({
       nome: "A",

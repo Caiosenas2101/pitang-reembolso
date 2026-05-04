@@ -94,30 +94,6 @@ describe("Dashboard", () => {
     });
   });
 
-  it("envia busca por colaborador para a API", async () => {
-    const user = userEvent.setup();
-
-    render(
-      <MemoryRouter>
-        <AuthProvider>
-          <Dashboard />
-        </AuthProvider>
-      </MemoryRouter>
-    );
-
-    await screen.findByLabelText("Colaborador");
-    await user.type(screen.getByLabelText("Colaborador"), "Ana");
-    await user.click(screen.getByRole("button", { name: "Aplicar filtros" }));
-
-    await waitFor(() => {
-      expect(listReimbursements).toHaveBeenLastCalledWith({
-        colaborador: "Ana",
-        sortBy: "dataDespesa",
-        sortOrder: "desc"
-      });
-    });
-  });
-
   it("envia ordenação escolhida para a API", async () => {
     const user = userEvent.setup();
 
@@ -204,49 +180,4 @@ describe("Dashboard", () => {
     });
   });
 
-  it("filtra as solicitações exibidas por colaborador ao aplicar filtros", async () => {
-    const user = userEvent.setup();
-
-    (listReimbursements as jest.Mock).mockResolvedValue([
-      {
-        ...baseReimbursement,
-        id: "reembolso-ana",
-        descricao: "Despesa da Ana",
-        solicitante: {
-          id: "usuario-ana",
-          nome: "Ana Silva",
-          email: "ana@teste.com",
-          perfil: "COLABORADOR"
-        }
-      },
-      {
-        ...baseReimbursement,
-        id: "reembolso-caio",
-        descricao: "Despesa do Caio",
-        solicitante: {
-          id: "usuario-caio",
-          nome: "Caio Sena",
-          email: "caio@teste.com",
-          perfil: "COLABORADOR"
-        }
-      }
-    ]);
-
-    render(
-      <MemoryRouter>
-        <AuthProvider>
-          <Dashboard />
-        </AuthProvider>
-      </MemoryRouter>
-    );
-
-    await screen.findByText("Despesa da Ana");
-    await user.type(screen.getByLabelText("Colaborador"), "caio sena");
-    await user.click(screen.getByRole("button", { name: "Aplicar filtros" }));
-
-    await waitFor(() => {
-      expect(screen.getByText("Despesa do Caio")).toBeInTheDocument();
-      expect(screen.queryByText("Despesa da Ana")).not.toBeInTheDocument();
-    });
-  });
 });

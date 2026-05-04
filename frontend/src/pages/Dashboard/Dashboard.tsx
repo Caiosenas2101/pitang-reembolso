@@ -4,7 +4,6 @@ import { EmptyState, ErrorMessage, Loading } from "../../components/Feedback";
 import { StatusBadge } from "../../components/StatusBadge";
 import { Button, buttonVariants } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
-import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import { Select } from "../../components/ui/select";
 import { Table, TBody, TD, TH, THead, TR } from "../../components/ui/table";
@@ -22,7 +21,6 @@ type SortOption = "dataDespesa:desc" | "dataDespesa:asc" | "valor:desc" | "valor
 type AppliedFilters = {
   status: string;
   categoriaId: string;
-  colaborador: string;
   sortBy: "dataDespesa" | "valor";
   sortOrder: "asc" | "desc";
 };
@@ -37,34 +35,15 @@ const sortOptions: { label: string; value: SortOption }[] = [
 const defaultAppliedFilters: AppliedFilters = {
   status: "",
   categoriaId: "",
-  colaborador: "",
   sortBy: "dataDespesa",
   sortOrder: "desc"
 };
 
-function normalizeSearch(value: string) {
-  return value
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase();
-}
-
 function applyReimbursementFilters(items: Reimbursement[], filters: AppliedFilters) {
-  const collaboratorSearch = normalizeSearch(filters.colaborador);
-
   return [...items]
     .filter((item) => {
       if (filters.status && item.status !== filters.status) return false;
       if (filters.categoriaId && item.categoriaId !== filters.categoriaId) return false;
-
-      if (collaboratorSearch) {
-        const requesterName = normalizeSearch(item.solicitante?.nome ?? "");
-        const requesterEmail = normalizeSearch(item.solicitante?.email ?? "");
-
-        if (!requesterName.includes(collaboratorSearch) && !requesterEmail.includes(collaboratorSearch)) {
-          return false;
-        }
-      }
 
       return true;
     })
@@ -85,7 +64,6 @@ export function Dashboard() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [status, setStatus] = useState("");
   const [categoriaId, setCategoriaId] = useState("");
-  const [colaborador, setColaborador] = useState("");
   const [sortOption, setSortOption] = useState<SortOption>("dataDespesa:desc");
   const [appliedFilters, setAppliedFilters] = useState<AppliedFilters>(defaultAppliedFilters);
   const [loading, setLoading] = useState(true);
@@ -99,7 +77,6 @@ export function Dashboard() {
       const data = await listReimbursements({
         ...(appliedFilters.status ? { status: appliedFilters.status } : {}),
         ...(appliedFilters.categoriaId ? { categoriaId: appliedFilters.categoriaId } : {}),
-        ...(appliedFilters.colaborador ? { colaborador: appliedFilters.colaborador } : {}),
         sortBy: appliedFilters.sortBy,
         sortOrder: appliedFilters.sortOrder
       });
@@ -129,7 +106,6 @@ export function Dashboard() {
   function clearFilters() {
     setStatus("");
     setCategoriaId("");
-    setColaborador("");
     setSortOption("dataDespesa:desc");
     setAppliedFilters(defaultAppliedFilters);
   }
@@ -140,7 +116,6 @@ export function Dashboard() {
     setAppliedFilters({
       status,
       categoriaId,
-      colaborador: colaborador.trim(),
       sortBy,
       sortOrder
     });
@@ -162,16 +137,7 @@ export function Dashboard() {
 
       {error && <ErrorMessage message={error} />}
       <Card className="mb-4">
-        <CardContent className="grid gap-4 p-4 md:grid-cols-[1.2fr_1fr_1fr_1fr_auto_auto]">
-          <div className="space-y-2">
-            <Label htmlFor="colaborador">Colaborador</Label>
-            <Input
-              id="colaborador"
-              value={colaborador}
-              onChange={(event) => setColaborador(event.target.value)}
-              placeholder="Nome ou e-mail"
-            />
-          </div>
+        <CardContent className="grid gap-4 p-4 md:grid-cols-[1fr_1fr_1fr_auto_auto]">
           <div className="space-y-2">
             <Label htmlFor="status">Status</Label>
             <Select id="status" value={status} onChange={(event) => setStatus(event.target.value)}>
