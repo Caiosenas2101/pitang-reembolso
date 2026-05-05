@@ -5,10 +5,10 @@ import { useAuth } from "./contexts/AuthContext";
 import { Categories } from "./pages/Categories/Categories";
 import { Dashboard } from "./pages/Dashboard/Dashboard";
 import { Login } from "./pages/Login/Login";
-import { Register } from "./pages/Register/Register";
 import { EditReimbursement } from "./pages/Reimbursements/EditReimbursement";
 import { NewReimbursement } from "./pages/Reimbursements/NewReimbursement";
 import { ReimbursementDetails } from "./pages/Reimbursements/ReimbursementDetails";
+import { Users } from "./pages/Users/Users";
 
 function AdminRoute({ children }: { children: JSX.Element }) {
   const { user } = useAuth();
@@ -25,7 +25,6 @@ export function App() {
     <Routes>
       <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
       <Route element={<PrivateRoute />}>
         <Route element={<AppLayout />}>
           <Route path="/reimbursements" element={<Dashboard />} />
@@ -51,6 +50,14 @@ export function App() {
             element={
               <AdminRoute>
                 <Categories />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/users"
+            element={
+              <AdminRoute>
+                <Users />
               </AdminRoute>
             }
           />

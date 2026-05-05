@@ -31,5 +31,9 @@ export const usersRepository = {
 
   update(id: string, data: Prisma.UserUpdateInput) {
     return prisma.user.update({ where: { id }, data });
+  },
+
+  delete(id: string) {
+    return prisma.user.delete({ where: { id } });
   }
 };

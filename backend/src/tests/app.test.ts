@@ -118,15 +118,113 @@ describe("API", () => {
     ]);
   });
 
-  it("valida payload de cadastro de usuário", async () => {
-    const response = await request(app).post("/users").send({
+  it("permite apenas ADMIN criar contas que não sejam de administrador", async () => {
+    await createUser(UserRole.ADMIN, "admin@teste.com");
+    await createUser(UserRole.COLABORADOR, "colaborador@teste.com");
+
+    const adminToken = await login("admin@teste.com");
+    const collaboratorToken = await login("colaborador@teste.com");
+
+    const unauthorized = await request(app).post("/users").send({
+      nome: "Gestor Novo",
+      email: "gestor.novo@teste.com",
+      senha: "123456",
+      perfil: UserRole.GESTOR
+    });
+
+    expect(unauthorized.status).toBe(401);
+
+    const forbidden = await request(app)
+      .post("/users")
+      .set("Authorization", `Bearer ${collaboratorToken}`)
+      .send({
+        nome: "Gestor Novo",
+        email: "gestor.novo@teste.com",
+        senha: "123456",
+        perfil: UserRole.GESTOR
+      });
+
+    expect(forbidden.status).toBe(403);
+
+    const invalidPayload = await request(app)
+      .post("/users")
+      .set("Authorization", `Bearer ${adminToken}`)
+      .send({
       nome: "A",
       email: "email-invalido",
       senha: "123",
       perfil: UserRole.COLABORADOR
     });
 
-    expect(response.status).toBe(400);
+    expect(invalidPayload.status).toBe(400);
+
+    const adminProfile = await request(app)
+      .post("/users")
+      .set("Authorization", `Bearer ${adminToken}`)
+      .send({
+        nome: "Admin Novo",
+        email: "admin.novo@teste.com",
+        senha: "123456",
+        perfil: UserRole.ADMIN
+      });
+
+    expect(adminProfile.status).toBe(400);
+
+    const created = await request(app)
+      .post("/users")
+      .set("Authorization", `Bearer ${adminToken}`)
+      .send({
+        nome: "Financeiro Novo",
+        email: "financeiro.novo@teste.com",
+        senha: "123456",
+        perfil: UserRole.FINANCEIRO
+      });
+
+    expect(created.status).toBe(201);
+    expect(created.body).toMatchObject({
+      nome: "Financeiro Novo",
+      email: "financeiro.novo@teste.com",
+      perfil: UserRole.FINANCEIRO
+    });
+    expect(created.body.senha).toBeUndefined();
+  });
+
+  it("permite ADMIN listar e apagar contas não administrativas", async () => {
+    await createUser(UserRole.ADMIN, "admin@teste.com");
+    const collaborator = await createUser(UserRole.COLABORADOR, "colaborador@teste.com");
+
+    const adminToken = await login("admin@teste.com");
+
+    const list = await request(app)
+      .get("/users")
+      .set("Authorization", `Bearer ${adminToken}`);
+
+    expect(list.status).toBe(200);
+    expect(list.body).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ email: "admin@teste.com", perfil: UserRole.ADMIN }),
+        expect.objectContaining({
+          email: "colaborador@teste.com",
+          perfil: UserRole.COLABORADOR
+        })
+      ])
+    );
+
+    const deleted = await request(app)
+      .delete(`/users/${collaborator.id}`)
+      .set("Authorization", `Bearer ${adminToken}`);
+
+    expect(deleted.status).toBe(204);
+
+    const afterDelete = await request(app)
+      .get("/users")
+      .set("Authorization", `Bearer ${adminToken}`);
+
+    expect(afterDelete.body).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ email: "colaborador@teste.com" })
+      ])
+    );
   });
 
   it("autentica usuário com JWT e rejeita credenciais inválidas", async () => {

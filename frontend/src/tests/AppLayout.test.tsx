@@ -45,6 +45,7 @@ describe("AppLayout", () => {
       perfil: "ADMIN"
     });
 
+    expect(screen.getByText("Contas")).toBeInTheDocument();
     expect(screen.getByText("Categorias")).toBeInTheDocument();
     expect(screen.queryByText("Nova")).not.toBeInTheDocument();
   });

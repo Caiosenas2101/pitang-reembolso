@@ -30,9 +30,14 @@ export function AppLayout() {
                 </NavLink>
               )}
               {user?.perfil === "ADMIN" && (
-                <NavLink className="rounded-md px-3 py-2 text-sm font-medium text-white/65 hover:bg-white/10 hover:text-white" to="/categories">
-                  Categorias
-                </NavLink>
+                <>
+                  <NavLink className="rounded-md px-3 py-2 text-sm font-medium text-white/65 hover:bg-white/10 hover:text-white" to="/users">
+                    Contas
+                  </NavLink>
+                  <NavLink className="rounded-md px-3 py-2 text-sm font-medium text-white/65 hover:bg-white/10 hover:text-white" to="/categories">
+                    Categorias
+                  </NavLink>
+                </>
               )}
             </div>
             <span className="hidden text-sm text-white/55 md:inline">

@@ -5,4 +5,6 @@ export type User = {
   nome: string;
   email: string;
   perfil: UserRole;
+  criadoEm?: string;
+  atualizadoEm?: string;
 };

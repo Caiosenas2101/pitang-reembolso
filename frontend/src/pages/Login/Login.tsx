@@ -1,6 +1,6 @@
 import { FormEvent, useState } from "react";
 import { ArrowRight } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { ErrorMessage } from "../../components/Feedback";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
@@ -107,12 +107,6 @@ export function Login() {
                 {loading ? "Entrando..." : "Entrar"}
                 {!loading && <ArrowRight aria-hidden="true" className="h-4 w-4" />}
               </Button>
-              <Link
-                className="block text-center text-sm font-medium text-[#c2262f] underline-offset-4 hover:underline"
-                to="/register"
-              >
-                Criar conta
-              </Link>
             </form>
         </CardContent>
       </Card>

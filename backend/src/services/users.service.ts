@@ -5,6 +5,10 @@ import { hashPassword } from "../utils/password";
 
 export const usersService = {
   async create(data: { nome: string; email: string; senha: string; perfil: UserRole }) {
+    if (data.perfil === UserRole.ADMIN) {
+      throw new AppError("Não é permitido criar usuário administrador", 400, "Bad Request");
+    }
+
     const existingUser = await usersRepository.findByEmail(data.email);
 
     if (existingUser) {
@@ -22,5 +26,31 @@ export const usersService = {
 
   list() {
     return usersRepository.list();
+  },
+
+  async delete(id: string, currentUserId: string) {
+    if (id === currentUserId) {
+      throw new AppError("Não é permitido apagar a própria conta", 400, "Bad Request");
+    }
+
+    const user = await usersRepository.findById(id);
+
+    if (!user) {
+      throw new AppError("Usuário não encontrado", 404, "Not Found");
+    }
+
+    if (user.perfil === UserRole.ADMIN) {
+      throw new AppError("Não é permitido apagar usuário administrador", 400, "Bad Request");
+    }
+
+    try {
+      await usersRepository.delete(id);
+    } catch {
+      throw new AppError(
+        "Não foi possível apagar usuário com registros vinculados",
+        400,
+        "Bad Request"
+      );
+    }
   }
 };

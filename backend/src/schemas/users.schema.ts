@@ -5,5 +5,8 @@ export const createUserSchema = z.object({
   nome: z.string().min(2, "Nome é obrigatório"),
   email: z.string().email("E-mail inválido"),
   senha: z.string().min(6, "Senha deve ter pelo menos 6 caracteres"),
-  perfil: z.nativeEnum(UserRole)
+  perfil: z.enum(
+    [UserRole.COLABORADOR, UserRole.GESTOR, UserRole.FINANCEIRO],
+    { message: "Perfil inválido" }
+  )
 });
