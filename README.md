@@ -14,7 +14,9 @@ Para rodar o projeto no computador, instale:
 - `Node.js`: para instalar dependências e rodar backend/frontend.
 - `SQLite`: para criar e consultar o banco local.
 
-## Instalar dependências
+## Passo a passo para rodar a aplicação
+
+## 1. Instalar dependências
 
 ```bash
 npm run install:all
@@ -22,14 +24,18 @@ npm run install:all
 
 Esse comando instala as dependências do `backend` e do `frontend`.
 
-Ele é um atalho para:
+## 2. Configurar ambiente
+
+Antes de preparar o banco, crie os arquivos `.env` a partir dos exemplos:
 
 ```bash
-npm install --prefix backend
-npm install --prefix frontend
+cp backend/.env.example backend/.env
+cp frontend/.env.example frontend/.env
 ```
 
-## Banco de dados
+O `backend/.env` é necessário porque o Prisma usa o `DATABASE_URL` para encontrar/criar o banco SQLite.
+
+## 3. Banco de dados
 
 ```bash
 npm run db:init
@@ -37,7 +43,26 @@ npm run db:init
 
 Esse comando cria/prepara o banco SQLite do backend e cadastra os usuários de teste.
 
-### Como ver o que está salvo no banco
+## 4. Rodar localmente
+
+### 4.1. Em um terminal
+
+```bash
+npm run dev:backend
+```
+
+### 4.2. Em outro terminal
+
+```bash
+npm run dev:frontend
+```
+
+URLs:
+
+- Backend: `http://localhost:3333`
+- Frontend: `http://127.0.0.1:5173`
+
+## Como ver o que está salvo no banco
 
 O banco usado localmente é SQLite e fica neste arquivo:
 
@@ -109,26 +134,6 @@ Para sair do SQLite:
 ```sql
 .exit
 ```
-
-## Rodar localmente
-
-Em um terminal:
-
-```bash
-npm run dev:backend
-```
-
-Em outro terminal:
-
-```bash
-npm run dev:frontend
-```
-
-URLs:
-
-- Backend: `http://localhost:3333`
-- Frontend: `http://127.0.0.1:5173`
-
 
 ### O que cada script faz?
 
