@@ -5,6 +5,15 @@ Projeto fullstack dividido em duas partes dentro do mesmo repositório:
 - `backend`: API RESTful com Node.js, Express, TypeScript, Prisma, JWT e Zod.
 - `frontend`: interface React com React Router, Context API, shadcn/Tailwind e Axios.
 
+## Antes de começar
+
+Para apenas ver o código pelo GitHub, não precisa baixar nada.
+
+Para rodar o projeto no computador, instale:
+
+- `Node.js`: para instalar dependências e rodar backend/frontend.
+- `SQLite`: para criar e consultar o banco local.
+
 ## Instalar dependências
 
 ```bash
