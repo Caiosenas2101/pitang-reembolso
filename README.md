@@ -120,30 +120,6 @@ URLs:
 - Backend: `http://localhost:3333`
 - Frontend: `http://127.0.0.1:5173`
 
-### Por que existem dois comandos de dev?
-
-Este é um projeto fullstack. Ele tem duas partes rodando ao mesmo tempo:
-
-- O `backend` é a API. Ele recebe requisições, valida regras, conversa com o banco e devolve dados.
-- O `frontend` é a tela que você abre no navegador. Ele chama a API para buscar, criar e atualizar dados.
-
-Por isso, durante o desenvolvimento, os dois servidores ficam ligados:
-
-```txt
-Navegador -> Frontend React -> Backend API -> Banco de dados
-```
-
-Você acessa somente o frontend no navegador:
-
-```txt
-http://127.0.0.1:5173
-```
-
-O frontend usa o backend internamente em:
-
-```txt
-http://localhost:3333
-```
 
 ### O que cada script faz?
 
