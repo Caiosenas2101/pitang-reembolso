@@ -14,6 +14,8 @@ Para rodar o projeto no computador, instale:
 - `Node.js`: para instalar dependências e rodar backend/frontend.
 - `SQLite`: para criar e consultar o banco local.
 
+
+
 ## Passo a passo para rodar a aplicação
 
 ## 1. Instalar dependências
