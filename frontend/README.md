@@ -1,41 +1,63 @@
 # Frontend - Controle de Solicitações de Reembolso
 
-Interface em React, React Router, Context API, shadcn/Tailwind e Axios.
+Interface em React, TypeScript, React Router, Context API, shadcn/Tailwind e Axios.
 
-## Rodar localmente
+As instruções para instalar, rodar e validar o projeto ficam no [README principal](../README.md). Aqui ficam apenas os detalhes do frontend.
 
-```bash
-cp .env.example .env
-npm install
-npm run dev
+## O que o frontend faz
+
+- Exibe as telas da aplicação.
+- Guarda token e usuário logado no Context API.
+- Protege rotas privadas.
+- Mostra ações conforme perfil e status.
+- Consome a API com Axios.
+- Exibe loading, erro, sucesso e estados vazios.
+
+## Telas
+
+- `Login`
+- `Solicitações`
+- `Nova solicitação`
+- `Editar solicitação`
+- `Detalhe da solicitação`
+- `Categorias`
+- `Contas`
+
+## Funcionalidades
+
+- Redireciona `/` para `/login`.
+- Lista solicitações conforme o perfil logado.
+- Filtra por status e categoria.
+- Ordena por data ou valor.
+- Cria e edita solicitações pelo colaborador.
+- Exibe detalhes, anexos e histórico.
+- Permite enviar, cancelar, aprovar, rejeitar e pagar conforme perfil/status.
+- Gerencia categorias e contas na área admin.
+- Limita data da despesa ao dia atual no formulário.
+
+## Perfis na interface
+
+- `COLABORADOR`: cria, edita, envia, cancela e anexa nas próprias solicitações.
+- `GESTOR`: aprova ou rejeita solicitações enviadas.
+- `FINANCEIRO`: marca solicitações aprovadas como pagas.
+- `ADMIN`: gerencia categorias e contas.
+
+## Organização
+
+- `src/App.tsx`: rotas e proteção por perfil.
+- `src/contexts/AuthContext.tsx`: autenticação.
+- `src/services`: chamadas HTTP.
+- `src/pages`: telas.
+- `src/components/ui`: componentes base estilo shadcn.
+- `src/utils/permissions.ts`: regras de exibição das ações.
+- `src/utils/format.ts`: formatação com `Intl`.
+
+## Variável de ambiente
+
+```txt
+VITE_API_URL=http://localhost:3333
 ```
-
-Aplicação: `http://127.0.0.1:5173`
-
-O backend deve estar rodando em `http://localhost:3333`.
 
 ## Testes
 
-O frontend usa Jest + React Testing Library.
-
-```bash
-npm run build
-npm test
-```
-
-A suíte cobre renderização de componentes, rota privada, mensagem de erro no login,
-renderização condicional por perfil e envio do formulário de solicitação.
-
-## Funcionalidades obrigatórias cobertas
-
-- Login com armazenamento de token e usuário no Context API.
-- Cadastro de usuário.
-- Rotas privadas.
-- Listagem de solicitações conforme o perfil retornado pela API.
-- Filtro de solicitações por status e categoria.
-- Criação e edição de solicitação pelo colaborador.
-- Detalhe da solicitação com status, anexos e histórico.
-- Ações por perfil/status: enviar, cancelar, aprovar, rejeitar e pagar.
-- Gestão de categorias pelo admin.
-- Mensagens visuais de carregamento, erro, sucesso e lista vazia.
-- Consumo da API com Axios.
+A suíte usa Jest + React Testing Library e cobre login, rota privada, layout por perfil, formulário de solicitação, filtro, ordenação, status e mensagens de erro.

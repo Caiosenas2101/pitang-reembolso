@@ -2,86 +2,73 @@
 
 API RESTful em Node.js, Express, TypeScript, Prisma, JWT e Zod.
 
-## Rodar localmente
+As instruções para instalar, preparar banco, rodar e validar o projeto ficam no [README principal](../README.md). Aqui ficam apenas os detalhes do backend.
 
-```bash
-cp .env.example .env
-npm install
-npm run prisma:migrate
-npm run prisma:seed
-npm run dev
-```
+## O que o backend faz
 
-Se o `prisma migrate dev` falhar por problema local do schema engine, use o inicializador SQLite:
+- Autentica usuários com JWT.
+- Valida body, params e query com Zod.
+- Aplica permissões por perfil.
+- Persiste dados com Prisma em SQLite.
+- Controla solicitações, categorias, anexos simulados e histórico.
 
-```bash
-npm run db:init
-npm run dev
-```
+## Perfis
 
-API: `http://localhost:3333`
+- `COLABORADOR`: cria, edita, envia, cancela e anexa nas próprias solicitações.
+- `GESTOR`: aprova ou rejeita solicitações enviadas.
+- `FINANCEIRO`: marca solicitações aprovadas como pagas.
+- `ADMIN`: gerencia categorias e contas de usuários não administradores.
 
-## Testes
+## Funcionalidades
 
-Para validar build e testes:
+- Login com JWT.
+- Gestão de contas pelo `ADMIN`.
+- Gestão de categorias com ativação/inativação.
+- CRUD principal de solicitações de reembolso.
+- Filtro por status/categoria e ordenação por data/valor.
+- Fluxo de status: `RASCUNHO`, `ENVIADO`, `APROVADO`, `REJEITADO`, `PAGO`, `CANCELADO`.
+- Histórico para ações relevantes.
+- Anexos simulados por nome, URL e tipo.
 
-```bash
-npm run build
-npm test
-```
+## Regras principais
 
-A suíte de testes cobre os pontos obrigatórios principais do backend:
+- Só colaborador cria solicitação.
+- Categoria precisa existir e estar ativa.
+- Valor deve ser maior que zero.
+- Data da despesa não pode ser futura.
+- Solicitações acima de `R$ 100` precisam de anexo antes do envio.
+- Anexo só entra em `RASCUNHO` e aceita `PDF`, `JPG`, `JPEG` ou `PNG`.
+- Colaborador só acessa as próprias solicitações.
+- Gestor só aprova/rejeita `ENVIADO`.
+- Financeiro só paga `APROVADO`.
+- Transições inválidas são bloqueadas.
 
-- Healthcheck da API.
-- Bloqueio de rotas privadas sem token.
-- Validação de payload com Zod.
-- Login com JWT e rejeição de credenciais inválidas.
-- Permissão por perfil, incluindo criação de categoria apenas por `ADMIN`.
-- Fluxo principal de reembolso: criar, editar rascunho, enviar, aprovar e pagar.
-- Bloqueio de aprovação por perfil inválido.
-- Bloqueio de edição após status `PAGO`.
-- Histórico gerado para `CREATED`, `UPDATED`, `SUBMITTED`, `APPROVED` e `PAID`.
-- Rejeição com justificativa obrigatória.
-- Bloqueio de solicitação com categoria inativa.
-- Validação de tipos permitidos em anexos simulados.
-
-## Usuários de teste
-
-Todos usam a senha `123456`.
-
-- `colaborador@teste.com` - `COLABORADOR`
-- `gestor@teste.com` - `GESTOR`
-- `financeiro@teste.com` - `FINANCEIRO`
-- `admin@teste.com` - `ADMIN`
-
-## Principais rotas
+## Rotas principais
 
 - `POST /auth/login`
-- `POST /users`
-- `GET /users`
-- `GET /categories`
-- `POST /categories`
-- `PUT /categories/:id`
-- `GET /reimbursements` - aceita `status`, `categoriaId`, `sortBy=dataDespesa|valor` e `sortOrder=asc|desc`
-- `POST /reimbursements`
-- `GET /reimbursements/:id`
-- `PUT /reimbursements/:id`
+- `GET|POST|DELETE /users`
+- `GET|POST|PUT /categories`
+- `GET|POST|PUT /reimbursements`
 - `POST /reimbursements/:id/submit`
 - `POST /reimbursements/:id/approve`
 - `POST /reimbursements/:id/reject`
 - `POST /reimbursements/:id/pay`
 - `POST /reimbursements/:id/cancel`
 - `GET /reimbursements/:id/history`
-- `POST /reimbursements/:id/attachments`
-- `GET /reimbursements/:id/attachments`
+- `GET|POST /reimbursements/:id/attachments`
 
-## Decisões técnicas
+`GET /reimbursements` aceita `status`, `categoriaId`, `sortBy=dataDespesa|valor` e `sortOrder=asc|desc`.
 
-- O backend usa uma arquitetura simples por camadas: routes, controllers, services, repositories, schemas e middlewares.
-- As regras de negócio ficam nos services.
-- O Prisma concentra a persistência.
-- O Zod valida body, params e query antes da regra de negócio.
-- O JWT identifica o usuário logado.
-- O RBAC bloqueia ações por perfil.
-- Toda ação relevante em solicitação gera histórico.
-- Upload de anexo é simulado com nome, URL e tipo do arquivo.
+## Estrutura
+
+- `routes`: rotas HTTP.
+- `controllers`: entrada e saída das requisições.
+- `services`: regras de negócio.
+- `repositories`: acesso ao Prisma.
+- `schemas`: validações com Zod.
+- `middlewares`: auth, permissões, validação e erros.
+- `tests`: testes de integração com Jest e Supertest.
+
+## Testes
+
+A suíte cobre autenticação, permissões, validações, fluxo completo de reembolso, histórico, categorias inativas, data futura, anexo obrigatório acima de `R$ 100`, anexos simulados e ordenação.
