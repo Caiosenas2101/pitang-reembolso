@@ -64,6 +64,15 @@ URLs:
 - Backend: `http://localhost:3333`
 - Frontend: `http://127.0.0.1:5173`
 
+## Usuários de teste
+
+Todos usam a senha `123456`.
+
+- `colaborador@teste.com` - `COLABORADOR`
+- `gestor@teste.com` - `GESTOR`
+- `financeiro@teste.com` - `FINANCEIRO`
+- `admin@teste.com` - `ADMIN`
+
 ## Como ver o que está salvo no banco
 
 O banco usado localmente é SQLite e fica neste arquivo:
@@ -152,12 +161,3 @@ Para sair do SQLite:
 npm run build
 npm test
 ```
-
-## Usuários de teste
-
-Todos usam a senha `123456`.
-
-- `colaborador@teste.com` - `COLABORADOR`
-- `gestor@teste.com` - `GESTOR`
-- `financeiro@teste.com` - `FINANCEIRO`
-- `admin@teste.com` - `ADMIN`
