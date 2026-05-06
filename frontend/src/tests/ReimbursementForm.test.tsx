@@ -14,6 +14,14 @@ jest.mock("../services/reimbursements.service", () => ({
   updateReimbursement: jest.fn()
 }));
 
+function getTodayInputValue() {
+  const today = new Date();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+
+  return `${today.getFullYear()}-${month}-${day}`;
+}
+
 describe("ReimbursementForm", () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -67,5 +75,19 @@ describe("ReimbursementForm", () => {
         dataDespesa: "2026-05-01"
       });
     });
+  });
+
+  it("limita a data da despesa ao dia atual", async () => {
+    render(
+      <MemoryRouter initialEntries={["/reimbursements/new"]}>
+        <Routes>
+          <Route path="/reimbursements/new" element={<ReimbursementForm />} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    const expenseDateInput = await screen.findByLabelText("Data da despesa");
+
+    expect(expenseDateInput).toHaveAttribute("max", getTodayInputValue());
   });
 });

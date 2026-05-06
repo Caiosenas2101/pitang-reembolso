@@ -17,9 +17,29 @@ type ListReimbursementsFilters = {
   sortOrder?: Prisma.SortOrder;
 };
 
+const ATTACHMENT_REQUIRED_VALUE = 100;
+
 function ensureOwner(reimbursement: { solicitanteId: string }, user: AuthUser) {
   if (reimbursement.solicitanteId !== user.id) {
     throw new AppError("Usuário não tem permissão para esta solicitação", 403, "Forbidden");
+  }
+}
+
+function isFutureExpenseDate(dataDespesa: Date) {
+  const expenseDay = Date.UTC(
+    dataDespesa.getUTCFullYear(),
+    dataDespesa.getUTCMonth(),
+    dataDespesa.getUTCDate()
+  );
+  const today = new Date();
+  const todayDay = Date.UTC(today.getFullYear(), today.getMonth(), today.getDate());
+
+  return expenseDay > todayDay;
+}
+
+function ensureExpenseDateIsNotFuture(dataDespesa: Date) {
+  if (isFutureExpenseDate(dataDespesa)) {
+    throw new AppError("Data da despesa não pode ser futura", 400, "Bad Request");
   }
 }
 
@@ -43,6 +63,7 @@ export const reimbursementsService = {
       dataDespesa: Date;
     }
   ) {
+    ensureExpenseDateIsNotFuture(data.dataDespesa);
     await categoriesService.ensureActive(data.categoriaId);
 
     const reimbursement = await reimbursementsRepository.create({
@@ -114,6 +135,10 @@ export const reimbursementsService = {
       await categoriesService.ensureActive(data.categoriaId);
     }
 
+    if (data.dataDespesa) {
+      ensureExpenseDateIsNotFuture(data.dataDespesa);
+    }
+
     const updated = await reimbursementsRepository.update(id, data);
 
     await historyService.create({
@@ -132,6 +157,14 @@ export const reimbursementsService = {
 
     if (reimbursement.status !== ReimbursementStatus.RASCUNHO) {
       throw new AppError("Apenas solicitações em rascunho podem ser enviadas", 400, "Bad Request");
+    }
+
+    if (Number(reimbursement.valor) > ATTACHMENT_REQUIRED_VALUE && reimbursement.anexos.length === 0) {
+      throw new AppError(
+        "Solicitações acima de R$ 100 precisam ter anexo antes do envio",
+        400,
+        "Bad Request"
+      );
     }
 
     const updated = await reimbursementsRepository.changeStatus(id, ReimbursementStatus.ENVIADO);

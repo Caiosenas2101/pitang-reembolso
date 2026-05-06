@@ -49,6 +49,13 @@ async function createCategory(ativo = true) {
   });
 }
 
+function getFutureDateInput() {
+  const futureDate = new Date();
+  futureDate.setDate(futureDate.getDate() + 1);
+
+  return futureDate.toISOString().slice(0, 10);
+}
+
 describe("API", () => {
   beforeEach(async () => {
     await resetDatabase();
@@ -413,6 +420,67 @@ describe("API", () => {
 
     expect(response.status).toBe(400);
     expect(response.body.message).toBe("Categoria não encontrada ou inativa");
+  });
+
+  it("bloqueia despesa com data futura", async () => {
+    await createUser(UserRole.COLABORADOR, "colaborador@teste.com");
+    const category = await createCategory();
+    const collaboratorToken = await login("colaborador@teste.com");
+
+    const response = await request(app)
+      .post("/reimbursements")
+      .set("Authorization", `Bearer ${collaboratorToken}`)
+      .send({
+        categoriaId: category.id,
+        descricao: "Despesa futura",
+        valor: 30,
+        dataDespesa: getFutureDateInput()
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe("Data da despesa não pode ser futura");
+  });
+
+  it("bloqueia envio de solicitação acima de 100 reais sem anexo", async () => {
+    await createUser(UserRole.COLABORADOR, "colaborador@teste.com");
+    const category = await createCategory();
+    const collaboratorToken = await login("colaborador@teste.com");
+
+    const created = await request(app)
+      .post("/reimbursements")
+      .set("Authorization", `Bearer ${collaboratorToken}`)
+      .send({
+        categoriaId: category.id,
+        descricao: "Hospedagem",
+        valor: 150,
+        dataDespesa: "2026-04-18"
+      });
+
+    const submitWithoutAttachment = await request(app)
+      .post(`/reimbursements/${created.body.id}/submit`)
+      .set("Authorization", `Bearer ${collaboratorToken}`);
+
+    expect(submitWithoutAttachment.status).toBe(400);
+    expect(submitWithoutAttachment.body.message).toBe(
+      "Solicitações acima de R$ 100 precisam ter anexo antes do envio"
+    );
+
+    await request(app)
+      .post(`/reimbursements/${created.body.id}/attachments`)
+      .set("Authorization", `Bearer ${collaboratorToken}`)
+      .send({
+        nomeArquivo: "nota.pdf",
+        urlArquivo: "https://exemplo.com/nota.pdf",
+        tipoArquivo: "pdf"
+      })
+      .expect(201);
+
+    const submitted = await request(app)
+      .post(`/reimbursements/${created.body.id}/submit`)
+      .set("Authorization", `Bearer ${collaboratorToken}`);
+
+    expect(submitted.status).toBe(200);
+    expect(submitted.body.status).toBe(ReimbursementStatus.ENVIADO);
   });
 
   it("valida tipos permitidos em anexos simulados", async () => {

@@ -19,6 +19,14 @@ type Props = {
   reimbursement?: Reimbursement;
 };
 
+function getTodayInputValue() {
+  const today = new Date();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+
+  return `${today.getFullYear()}-${month}-${day}`;
+}
+
 export function ReimbursementForm({ reimbursement }: Props) {
   const navigate = useNavigate();
   const [categories, setCategories] = useState<Category[]>([]);
@@ -123,6 +131,7 @@ export function ReimbursementForm({ reimbursement }: Props) {
           <Input
             id="dataDespesa"
             type="date"
+            max={getTodayInputValue()}
             value={dataDespesa}
             onChange={(event) => setDataDespesa(event.target.value)}
             required
